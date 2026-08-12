@@ -27,9 +27,79 @@ func extractKeys(path string, content []byte) map[string]bool {
 	return keys
 }
 
-func cmdEnvParity(paths []string) int {
+var envStems = map[string]bool{
+	"dev": true, "develop": true, "development": true, "local": true,
+	"stage": true, "staging": true, "hml": true, "homolog": true,
+	"prod": true, "production": true, "qa": true, "sandbox": true,
+}
+
+// dev/local usually carry a different SHAPE, not just different values (own probes,
+// nodeSelector, no external secrets). Comparing them against the deployed environments
+// floods the output and buries the one asymmetry that matters.
+var shapeDivergentStems = map[string]bool{
+	"dev": true, "develop": true, "development": true, "local": true,
+}
+
+func envStemOf(name string) string {
+	stem := strings.TrimSuffix(name, filepath.Ext(name))
+	stem = strings.TrimPrefix(stem, "values-")
+	stem = strings.TrimPrefix(stem, ".env.")
+	if name == ".env" {
+		return "default"
+	}
+	return strings.ToLower(stem)
+}
+
+func discoverEnvFiles(dir string, includeAll bool) (found, skipped []string, err error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, nil, err
+	}
+	for _, e := range entries {
+		if e.IsDir() {
+			continue
+		}
+		stem := envStemOf(e.Name())
+		if !envStems[stem] {
+			continue
+		}
+		if !includeAll && shapeDivergentStems[stem] {
+			skipped = append(skipped, e.Name())
+			continue
+		}
+		found = append(found, filepath.Join(dir, e.Name()))
+	}
+	sort.Strings(found)
+	sort.Strings(skipped)
+	return found, skipped, nil
+}
+
+func cmdEnvParity(paths []string, includeAll bool) int {
+	if len(paths) == 1 {
+		if st, err := os.Stat(paths[0]); err == nil && st.IsDir() {
+			found, skipped, err := discoverEnvFiles(paths[0], includeAll)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "erro:", err)
+				return 1
+			}
+			if len(found) < 2 {
+				fmt.Fprintf(os.Stderr, "menos de dois arquivos de ambiente comparaveis em %s\n", paths[0])
+				return 2
+			}
+			var names []string
+			for _, f := range found {
+				names = append(names, filepath.Base(f))
+			}
+			fmt.Printf("comparando: %s\n", strings.Join(names, ", "))
+			if len(skipped) > 0 {
+				fmt.Printf("ignorado por ter forma propria: %s (use --all-envs para incluir)\n", strings.Join(skipped, ", "))
+			}
+			fmt.Println()
+			paths = found
+		}
+	}
 	if len(paths) < 2 {
-		fmt.Fprintln(os.Stderr, "uso: dejavu env-parity <arquivo-env-1> <arquivo-env-2> [...]")
+		fmt.Fprintln(os.Stderr, "uso: dejavu env-parity <arquivo> <arquivo> [...]  |  dejavu env-parity <diretorio>")
 		return 2
 	}
 
@@ -66,13 +136,16 @@ func cmdEnvParity(paths []string) int {
 			continue
 		}
 		found++
-		var present []string
+		var present, absent []string
 		for _, p := range paths {
 			if perFile[p][k] {
 				present = append(present, filepath.Base(p))
 			}
 		}
-		fmt.Printf("%-44s presente em %s | AUSENTE em %s\n", k, strings.Join(present, ", "), strings.Join(missing, ", "))
+		for _, p := range missing {
+			absent = append(absent, filepath.Base(p))
+		}
+		fmt.Printf("%-44s presente em %s | AUSENTE em %s\n", k, strings.Join(present, ", "), strings.Join(absent, ", "))
 	}
 
 	if found == 0 {

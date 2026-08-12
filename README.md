@@ -9,18 +9,23 @@ entra aqui - continua no `repo-rules.local.md` como conhecimento para a review.
 ## Instalação
 
 ```bash
-cd ~/PersonalProjects/dejavu && go build -o dejavu . && sudo install -m755 dejavu /usr/local/bin/dejavu
+make install
 ```
+
+Roda `gofmt`, `go vet`, os testes, compila e instala em `~/.local/bin`. Use `PREFIX=` para
+mudar o destino.
 
 ## Uso
 
 ```bash
 dejavu check src/app.ts src/page.html   # regras de arquivo
 dejavu commit-msg .git/COMMIT_EDITMSG   # regras de mensagem de commit
-dejavu env-parity stage.env prod.env    # compara as CHAVES entre arquivos de ambiente
+dejavu env-parity stage.yaml prod.yaml  # compara as CHAVES entre arquivos de ambiente
+dejavu env-parity apps/x/manifests      # descobre os ambientes do diretório e compara
 dejavu hook                             # lê o payload do hook do Claude Code no stdin
 dejavu rules list                       # regras carregadas
 dejavu rules stats                      # disparos e precisão por regra
+dejavu rules doctor                     # recomenda rebaixar ou promover (não aplica)
 dejavu rules fp <id> [nota]             # marca um disparo como falso positivo
 dejavu classes list                     # vocabulário de classes de achado
 dejavu classes validate                 # slugs do ledger fora do vocabulário

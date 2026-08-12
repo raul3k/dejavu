@@ -23,9 +23,12 @@ uso:
   dejavu check <arquivo>...          roda as regras de arquivo nos caminhos dados
   dejavu commit-msg <arquivo|->      roda as regras de mensagem de commit
   dejavu env-parity <arq> <arq>...   compara as CHAVES entre arquivos de ambiente
+  dejavu env-parity <diretorio>      descobre os arquivos de ambiente e compara
+                                     (dev/local ficam de fora; --all-envs inclui)
   dejavu hook                        le o payload do hook do Claude Code no stdin
   dejavu rules list                  lista as regras carregadas
   dejavu rules stats                 disparos e precisao por regra
+  dejavu rules doctor                recomenda rebaixar ou promover (nao aplica)
   dejavu rules fp|tp <id> [nota]     registra veredito sobre um disparo
   dejavu classes list                lista o vocabulario de classes
   dejavu classes validate            aponta slugs do ledger fora do vocabulario
@@ -126,7 +129,7 @@ func main() {
 		os.Exit(emit(findings, "commit-msg", asJSON, noFail))
 
 	case "env-parity":
-		os.Exit(cmdEnvParity(rest))
+		os.Exit(cmdEnvParity(rest, hasFlag(args, "--all-envs")))
 
 	case "hook":
 		path, err := pathFromHookPayload(os.Stdin)
@@ -158,6 +161,8 @@ func main() {
 			}
 		case "stats":
 			os.Exit(cmdRulesStats())
+		case "doctor":
+			os.Exit(cmdRulesDoctor())
 		case "fp", "tp":
 			os.Exit(cmdRulesFeedback(rest[1:], sub))
 		default:

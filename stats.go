@@ -148,6 +148,69 @@ func readFeedback() map[string]map[string]int {
 	return out
 }
 
+const (
+	doctorMinFires     = 10
+	doctorMinPrecision = 0.5
+)
+
+type doctorVerdict struct {
+	RuleID string
+	Reason string
+}
+
+func diagnose(rules []*Rule, fires map[string]int, fb map[string]map[string]int) []doctorVerdict {
+	var out []doctorVerdict
+	for _, r := range rules {
+		tp, fp := fb[r.ID]["tp"], fb[r.ID]["fp"]
+		judged := tp + fp
+		switch {
+		case r.Status == StatusActive && judged > 0 && float64(tp)/float64(judged) < doctorMinPrecision:
+			out = append(out, doctorVerdict{r.ID, fmt.Sprintf(
+				"precisao %.0f%% (%d/%d julgados) abaixo de %.0f%%: rebaixe para candidate",
+				100*float64(tp)/float64(judged), tp, judged, 100*doctorMinPrecision)})
+		case r.Status == StatusActive && judged == 0 && fires[r.ID] >= doctorMinFires:
+			out = append(out, doctorVerdict{r.ID, fmt.Sprintf(
+				"%d disparos e nenhum veredito: julgue com rules fp|tp antes que vire ruido tolerado", fires[r.ID])})
+		case r.Status == StatusCandidate && judged > 0 && float64(tp)/float64(judged) >= doctorMinPrecision:
+			out = append(out, doctorVerdict{r.ID, fmt.Sprintf(
+				"precisao %.0f%% (%d/%d julgados): promova para active",
+				100*float64(tp)/float64(judged), tp, judged)})
+		}
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].RuleID < out[j].RuleID })
+	return out
+}
+
+func cmdRulesDoctor() int {
+	rules, err := loadRules()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "erro:", err)
+		return 1
+	}
+	hits, err := readHits()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "erro:", err)
+		return 1
+	}
+	fires := map[string]int{}
+	for _, h := range hits {
+		fires[h.RuleID]++
+	}
+
+	verdicts := diagnose(rules, fires, readFeedback())
+	if len(verdicts) == 0 {
+		fmt.Println("nenhuma recomendacao: nenhuma regra cruzou os limiares.")
+		return 0
+	}
+	fmt.Printf("%d recomendacao(oes):\n\n", len(verdicts))
+	for _, v := range verdicts {
+		fmt.Printf("  %-34s %s\n", v.RuleID, v.Reason)
+	}
+	fmt.Println("\nNada foi alterado. Rebaixar ou promover regra e decisao sua:")
+	fmt.Println("edite o campo status em data/rules.json ou ~/.claude/dejavu/rules.json.")
+	return 0
+}
+
 func cmdRulesStats() int {
 	rules, err := loadRules()
 	if err != nil {

@@ -279,13 +279,13 @@ func TestEnvParityDetectsKeyPresentInOnlyOneEnvironment(t *testing.T) {
 	if err := os.WriteFile(prod, []byte("API_URL=b\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if code := cmdEnvParity([]string{stage, prod}); code != 2 {
+	if code := cmdEnvParity([]string{stage, prod}, false); code != 2 {
 		t.Errorf("assimetria deve sair com 2, veio %d", code)
 	}
 	if err := os.WriteFile(prod, []byte("API_URL=b\nFEATURE_X=0\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if code := cmdEnvParity([]string{stage, prod}); code != 0 {
+	if code := cmdEnvParity([]string{stage, prod}, false); code != 0 {
 		t.Errorf("paridade ok deve sair com 0, veio %d", code)
 	}
 }
