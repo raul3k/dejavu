@@ -300,6 +300,37 @@ func TestHookPayloadYieldsTheEditedPath(t *testing.T) {
 	}
 }
 
+func TestEveryOccurrenceInAFileIsReportedNotJustTheFirst(t *testing.T) {
+	content := []byte(`it('a', () => { expect(spy).toHaveBeenCalled(); });
+it('b', () => { expect(other).toHaveBeenCalled(); });
+it('c', () => { expect(third).toHaveBeenCalled(); });
+`)
+	got := checkContent(embeddedRuleSet(t), TargetFile, "x.spec.ts", "", content)
+	if len(got) != 3 {
+		t.Fatalf("esperava 3 achados, um por ocorrencia, veio %d", len(got))
+	}
+	lines := map[int]bool{}
+	for _, f := range got {
+		lines[f.Line] = true
+	}
+	for _, want := range []int{1, 2, 3} {
+		if !lines[want] {
+			t.Errorf("faltou o achado da linha %d: %v", want, lines)
+		}
+	}
+}
+
+func TestMatchesPerRuleAreCappedSoOneFileCannotFloodTheHook(t *testing.T) {
+	var sb strings.Builder
+	for i := 0; i < maxMatchesPerRule+10; i++ {
+		sb.WriteString("expect(spy).toHaveBeenCalled();\n")
+	}
+	got := checkContent(embeddedRuleSet(t), TargetFile, "x.spec.ts", "", []byte(sb.String()))
+	if len(got) != maxMatchesPerRule {
+		t.Errorf("esperava o teto de %d, veio %d", maxMatchesPerRule, len(got))
+	}
+}
+
 func TestLineNumberPointsAtTheOffendingLine(t *testing.T) {
 	content := []byte("linha um\nlinha dois\nexpect(spy).toHaveBeenCalled();\n")
 	got := checkContent(embeddedRuleSet(t), TargetFile, "a.spec.ts", "", content)

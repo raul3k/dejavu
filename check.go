@@ -9,7 +9,10 @@ import (
 	"strings"
 )
 
-const maxFileBytes = 2 << 20
+const (
+	maxFileBytes      = 2 << 20
+	maxMatchesPerRule = 20
+)
 
 type Finding struct {
 	Path     string `json:"path"`
@@ -44,22 +47,20 @@ func checkContent(rules []*Rule, target, path, repo string, content []byte) []Fi
 		if target == TargetFile && (!r.appliesToRepo(repo) || !r.appliesToPath(path)) {
 			continue
 		}
-		loc := r.re.FindIndex(content)
 		switch r.Mode {
 		case ModeFlagIfMatch:
-			if loc == nil {
-				continue
+			for _, loc := range r.re.FindAllIndex(content, maxMatchesPerRule) {
+				out = append(out, Finding{
+					Path:     path,
+					Line:     lineOf(content, loc[0]),
+					RuleID:   r.ID,
+					Severity: r.Severity,
+					Message:  r.Message,
+					Excerpt:  excerptAt(content, loc[0]),
+				})
 			}
-			out = append(out, Finding{
-				Path:     path,
-				Line:     lineOf(content, loc[0]),
-				RuleID:   r.ID,
-				Severity: r.Severity,
-				Message:  r.Message,
-				Excerpt:  excerptAt(content, loc[0]),
-			})
 		case ModeFlagIfNoMatch:
-			if loc != nil {
+			if r.re.Match(content) {
 				continue
 			}
 			out = append(out, Finding{
