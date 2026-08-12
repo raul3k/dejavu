@@ -1,0 +1,273 @@
+{
+  "api-contract-drift": {
+    "desc": "Contrato publicado (OpenAPI, schema, tipo exportado) diverge do que o codigo realmente devolve",
+    "aliases": [
+      "openapi-contract-lie",
+      "openapi-doc-drift",
+      "openapi-missing-field",
+      "openapi-schema-desatualizado"
+    ]
+  },
+  "auth-validation-too-weak": {
+    "desc": "Checagem de autenticacao/autorizacao aceita mais do que deveria (esquema nao validado, denylist onde cabia allowlist, verbo alem do escopo)",
+    "aliases": [
+      "bearer-scheme-not-validated",
+      "denylist-where-allowlist-needed",
+      "middleware-verb-overreach"
+    ]
+  },
+  "chart-dependency-unpinned": {
+    "desc": "Dependencia de chart sem pin ou sem lock, tornando o render nao deterministico",
+    "aliases": [
+      "chart-lock-ausente",
+      "unpinned-chart-default-dependency"
+    ]
+  },
+  "comment-policy-violation": {
+    "desc": "Comentario que a politica proibe: changelog no fonte, comentario verboso, comentario em pt-BR",
+    "aliases": [
+      "changelog-comment-in-source",
+      "verbose-comment"
+    ]
+  },
+  "compliance-control-not-enforced": {
+    "desc": "Controle exigido por lei ou politica (consentimento, retencao de dados) existe na UI mas nao e imposto no backend",
+    "aliases": []
+  },
+  "dependency-not-merged": {
+    "desc": "O codigo depende de algo que ainda nao esta mergeado: migration, coluna aplicada a mao, policy IAM, branch atras da base",
+    "aliases": [
+      "branch-behind-main-missing-migration",
+      "coluna-aplicada-a-mao-sem-migration-mergeada",
+      "iam-policy-nao-mergeada",
+      "migration-nao-mergeada-coluna-mapeada"
+    ]
+  },
+  "deploy-order-coupling": {
+    "desc": "Provider precisa ir antes do consumer e a ordem nao foi declarada (schema antes do codigo, sem buffer de stage)",
+    "aliases": [
+      "deploy-order-no-stage-buffer",
+      "schema-code-deploy-order"
+    ]
+  },
+  "doc-contract-drift": {
+    "desc": "Documentacao, descricao da PR ou README afirma algo que o codigo nao faz",
+    "aliases": [
+      "claim-vs-reality-drift",
+      "repo-doc-not-updated"
+    ]
+  },
+  "duplicated-source-of-truth": {
+    "desc": "A mesma definicao existe em dois lugares e pode divergir: dominio, parser de config, schema de mensagem, predicado",
+    "aliases": [
+      "divergent-domain-predicate",
+      "duplicate-domain-definition",
+      "duplicated-config-parser",
+      "message-schema-duplication-weaker-validation"
+    ]
+  },
+  "error-taxonomy-collapsed": {
+    "desc": "Causas diferentes viram o mesmo erro para quem consome, escondendo a causa real (tudo vira 401, dois contratos de erro no mesmo caminho)",
+    "aliases": [
+      "all-failures-collapse-to-401",
+      "dual-error-contract"
+    ]
+  },
+  "existing-rows-not-backfilled": {
+    "desc": "Coluna ou flag nova nasce com o default e o codigo que a le devolve resposta errada para todo registro que ja existia",
+    "aliases": [
+      "missing-backfill"
+    ]
+  },
+  "guard-diverges-from-product-rule": {
+    "desc": "A guarda no codigo nao corresponde a regra de produto: mais restritiva, cobertura parcial, ou troca a acao por observabilidade",
+    "aliases": [
+      "guard-sacrifica-acao-por-observabilidade",
+      "guard-stricter-than-product-rule",
+      "partial-guard-coverage"
+    ]
+  },
+  "incomplete-fix-scope": {
+    "desc": "O mesmo bug existe fora do diff e nao foi corrigido junto",
+    "aliases": [
+      "same-bug-outside-diff"
+    ]
+  },
+  "log-content-useless": {
+    "desc": "O log existe mas nao serve: grava a constante em vez do valor, serializa vazio, duplica o erro, ou nao distingue o caso",
+    "aliases": [
+      "double-error-log-on-failure",
+      "log-constant-not-value",
+      "log-payload-missing-discriminator",
+      "pino-error-key-serializa-vazio"
+    ]
+  },
+  "misleading-name-or-label": {
+    "desc": "Nome ou rotulo diz o oposto do que a coisa e: constante, parametro copiado, label que contradiz o dado exibido",
+    "aliases": [
+      "label-contradicts-data",
+      "misleading-constant-name",
+      "misleading-param-name-copy-paste",
+      "motivo-exibido-em-linha-pendente"
+    ]
+  },
+  "non-atomic-multi-write": {
+    "desc": "Acao logica com duas ou mais escritas sem transacao, compensacao ou rollback",
+    "aliases": [
+      "no-rollback-on-failure-return",
+      "non-atomic-cross-service",
+      "non-transactional-dual-write"
+    ]
+  },
+  "pr-hygiene": {
+    "desc": "Requisito de processo faltando na PR: codigo da tarefa, sign-off, draft, lockfile",
+    "aliases": [
+      "dispatcher-signoff-missing-in-pr",
+      "missing-ticket-code"
+    ]
+  },
+  "query-logic-bug": {
+    "desc": "A query devolve o resultado errado por logica: precedencia de operador, total zerado na paginacao",
+    "aliases": [
+      "pagination-total-zeroed",
+      "sql-precedence-trap"
+    ]
+  },
+  "race-on-shared-state": {
+    "desc": "Duas execucoes concorrentes sobre o mesmo estado sem serializacao: TOCTOU, replica de leitura, lock de granularidade errada, duplo submit",
+    "aliases": [
+      "blind-update-no-status-guard-race",
+      "lock-granularity-per-action",
+      "no-debounce-double-submit",
+      "non-atomic-setnx",
+      "read-replica-race"
+    ]
+  },
+  "redundant-work": {
+    "desc": "Trabalho executado sem necessidade: expressao SQL redundante, dispatch de reindex repetido",
+    "aliases": [
+      "redundant-reindex-dispatch",
+      "sql-redundant-expression"
+    ]
+  },
+  "resource-missing-in-environment": {
+    "desc": "O recurso que o codigo precisa nao existe naquele ambiente: grant, endpoint, fila, DLQ, Application do ArgoCD, targetRevision, worker nao registrado",
+    "aliases": [
+      "db-grant-prod-only",
+      "db-grants-faltando",
+      "endpoint-ausente-em-prod",
+      "missing-argocd-application",
+      "missing-sqs-queue-dlq",
+      "targetrevision-branch-inexistente",
+      "worker-not-registered-cd"
+    ]
+  },
+  "retry-policy-wrong": {
+    "desc": "O retry repete o que nunca vai passar ou pula um passo necessario (falha de auth deterministica, invalidacao ignorada)",
+    "aliases": [
+      "retry-skips-invalidation",
+      "unconditional-retry-on-deterministic-auth-failure"
+    ]
+  },
+  "sensitive-data-in-logs": {
+    "desc": "Credencial, token de sessao ou PII alcanca o log, inclusive pelo caminho de erro",
+    "aliases": [
+      "credential-in-logs",
+      "session-token-leak-in-error-log"
+    ]
+  },
+  "sibling-inconsistency": {
+    "desc": "O irmao que faz a mesma coisa faz diferente: gate divergente entre repos, rota legada com outro sinal",
+    "aliases": [
+      "cross-repo-gate-divergence",
+      "signal-divergence-legacy-route"
+    ]
+  },
+  "silent-failure-no-signal": {
+    "desc": "Caminho que engole a falha e nao emite sinal: noop silencioso, orfao invisivel na fila, alerta que consome o sinal, log removido",
+    "aliases": [
+      "dangerous-path-unlogged",
+      "no-alert-consumes-signal",
+      "observability-dropped-debug-log",
+      "queue-invisible-orphan",
+      "silent-noop-no-signal"
+    ]
+  },
+  "stale-reference": {
+    "desc": "Referencia que aponta para algo que mudou ou saiu",
+    "aliases": [
+      "stale-dependency-reference"
+    ]
+  },
+  "state-mapping-incomplete": {
+    "desc": "O mapeamento de estados nao cobre todos os casos ou rotula errado: else de auditoria, taxonomia furada, precedencia de motivo, estado novo escapando do filtro",
+    "aliases": [
+      "audit-label-else-branch",
+      "new-state-escapes-existing-filter",
+      "non-exhaustive-state-mapping",
+      "outcome-outside-taxonomy",
+      "reason-precedence-mislabel"
+    ]
+  },
+  "state-never-reconciled": {
+    "desc": "O estado congela porque ninguem reconcilia: status downstream nunca volta, leitura nao grava o estado que deveria",
+    "aliases": [
+      "downstream-status-frozen-no-reconciliation",
+      "read-path-skips-state-write"
+    ]
+  },
+  "test-assertion-too-weak": {
+    "desc": "A assercao nao pega a regressao que o teste diz cobrir: assercao que nao pode falhar, espia em vez de estado, string fraca, ordem de argumento, mutacao sobrevive",
+    "aliases": [
+      "assert-arg-order",
+      "assertion-cannot-fail",
+      "asserts-on-spy-not-state",
+      "mutation-survives-key-not-asserted",
+      "test-assertion-depth",
+      "test-does-not-pin-regression",
+      "weak-string-assertion",
+      "weak-test-assertion",
+      "weak-test-assertion-lockkey-ttl"
+    ]
+  },
+  "test-missing-for-behavior": {
+    "desc": "Comportamento que alguem depende nao tem teste nenhum: caso negativo, handler, regra de dominio, branch, comportamento novo",
+    "aliases": [
+      "happy-path-value-never-tested",
+      "missing-handler-test",
+      "missing-negative-test",
+      "new-behavior-zero-coverage",
+      "regra-de-dominio-sem-teste",
+      "test-branch-uncovered"
+    ]
+  },
+  "test-not-run-by-any-gate": {
+    "desc": "O teste existe mas nenhum gate de CI o executa",
+    "aliases": [
+      "test-never-executed-by-any-gate"
+    ]
+  },
+  "test-setup-invalid": {
+    "desc": "O setup faz o teste provar outra coisa: fixture impossivel, nome que contradiz o cenario, ordem-dependente, vazamento sem teardown, stub faltando no bloco de falha",
+    "aliases": [
+      "fixture-estado-impossivel",
+      "nome-de-teste-contradiz-fixture",
+      "spec-ordem-dependente",
+      "stub-missing-in-failure-block",
+      "test-env-leak-no-teardown"
+    ]
+  },
+  "type-check-workaround": {
+    "desc": "Tipo contornado para o checker passar em vez de o tipo estar certo",
+    "aliases": [
+      "phpstan-mock-type"
+    ]
+  },
+  "unhandled-async-failure": {
+    "desc": "Falha assincrona sem tratamento: await faltando derruba o processo, transporte sem handler de erro",
+    "aliases": [
+      "missing-await-crashes-instead-of-failing",
+      "missing-transport-error-handler"
+    ]
+  }
+}

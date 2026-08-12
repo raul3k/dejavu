@@ -1,0 +1,118 @@
+[
+  {
+    "id": "commit-subject-uppercase-after-prefix",
+    "target": "commit-subject",
+    "pattern": "^[a-z]+(\\([^)]+\\))?!?: [A-Z]",
+    "mode": "flag_if_match",
+    "severity": "blocker",
+    "message": "Subject comeca em MAIUSCULA depois do prefixo. Reprova em subject-case no commitlint e o job Commit trava Build/Lint/Test/TypeCheck. Caso mais comum: abrir com o codigo da tarefa (feat: ABC-12 - ...). O codigo vai entre parenteses no FIM: feat(escopo): descricao (ABC-12).",
+    "source": "CLAUDE.md#3-commit-subject-vs-pr-title",
+    "status": "active"
+  },
+  {
+    "id": "commit-subject-missing-conventional-prefix",
+    "target": "commit-subject",
+    "pattern": "^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert)(\\([^)]+\\))?!?: .+",
+    "mode": "flag_if_no_match",
+    "severity": "blocker",
+    "message": "Subject sem prefixo Conventional Commits. Obrigatorio sempre, sem excecao.",
+    "source": "CLAUDE.md#3-code-commits",
+    "status": "active"
+  },
+  {
+    "id": "commit-subject-too-long",
+    "target": "commit-subject",
+    "pattern": "^.{101,}$",
+    "mode": "flag_if_match",
+    "severity": "blocker",
+    "message": "Subject passa de 100 caracteres e reprova em header-max-length.",
+    "source": "CLAUDE.md#3-code-commits",
+    "status": "active"
+  },
+  {
+    "id": "commit-body-not-empty",
+    "target": "commit-body",
+    "pattern": "\\S",
+    "mode": "flag_if_match",
+    "severity": "high",
+    "message": "Commit com body. A regra e single-line ONLY: nenhum body, nunca. A justificativa vai na descricao da PR.",
+    "source": "CLAUDE.md#3-code-commits",
+    "status": "active"
+  },
+  {
+    "id": "commit-coauthored-by",
+    "target": "commit-message",
+    "pattern": "(?i)co-authored-by",
+    "mode": "flag_if_match",
+    "severity": "high",
+    "message": "Co-Authored-By na mensagem de commit. Nunca adicionar.",
+    "source": "CLAUDE.md#3-code-commits",
+    "status": "active"
+  },
+  {
+    "id": "spec-weak-called-assertion",
+    "target": "file",
+    "paths": [
+      "**/*.spec.ts",
+      "**/*.test.ts",
+      "**/*.spec.js",
+      "**/*.test.js"
+    ],
+    "pattern": "\\.toHaveBeenCalled\\(\\s*\\)",
+    "mode": "flag_if_match",
+    "severity": "medium",
+    "message": "toHaveBeenCalled() passa com qualquer contagem, inclusive o duplo disparo que a mudanca pode introduzir. Se a afirmacao e 'uma vez', use toHaveBeenCalledTimes(1).",
+    "source": "pr-review/SKILL.md#lens-4-tests + ledger:test-assertion-too-weak (9x, 80% aceite)",
+    "status": "active"
+  },
+  {
+    "id": "spec-focused-test",
+    "target": "file",
+    "paths": [
+      "**/*.spec.ts",
+      "**/*.test.ts",
+      "**/*.spec.js",
+      "**/*.test.js"
+    ],
+    "pattern": "\\b(describe|it|test)\\.only\\(",
+    "mode": "flag_if_match",
+    "severity": "high",
+    "message": "Teste focado com .only: o resto do arquivo deixa de rodar e o gate passa sem executar nada.",
+    "source": "ledger:test-not-run-by-any-gate",
+    "status": "active"
+  },
+  {
+    "id": "accented-comment-in-source",
+    "target": "file",
+    "paths": [
+      "**/*.ts",
+      "**/*.js",
+      "**/*.php",
+      "**/*.go",
+      "**/*.tsx"
+    ],
+    "pattern": "//[^\\n]*[ãõçáéíóúâêô]",
+    "mode": "flag_if_match",
+    "severity": "medium",
+    "message": "Comentario com acentuacao em codigo. Codigo-fonte e English-only, e comentario em pt-BR marca o diff como gerado por maquina na hora da review.",
+    "source": "CLAUDE.md#6.3-code-comments",
+    "status": "active"
+  },
+  {
+    "id": "em-dash-or-arrow-in-text",
+    "target": "file",
+    "paths": [
+      "**/*.md",
+      "**/*.ts",
+      "**/*.php",
+      "**/*.html",
+      "**/*.go"
+    ],
+    "pattern": "[—–→]",
+    "mode": "flag_if_match",
+    "severity": "low",
+    "message": "Em dash, en dash ou seta unicode. Use hifen simples ou '->'.",
+    "source": "CLAUDE.md#7-document-formatting",
+    "status": "active"
+  }
+]
