@@ -77,13 +77,12 @@ checagem em que ninguém confia treina a pessoa a ignorar todas as outras.
 | `~/.claude/dejavu/hits.jsonl` | todo disparo, para medir precisão |
 | `~/.claude/dejavu/feedback.jsonl` | vereditos manuais (fp / tp) |
 
-## Hooks instalados
+## Hooks
 
-- `~/.claude/settings.json`: `PostToolUse` em `Edit|Write` chamando `dejavu hook`.
-- `.git/hooks/commit-msg` nos repositorios onde foi instalado manualmente.
+Instalado: `~/.claude/settings.json`, um `PostToolUse` em `Edit|Write` chamando `dejavu hook`.
 
-Para instalar em um repo novo:
+Nenhum hook é instalado em repositório de trabalho. As regras de commit rodam sob demanda:
 
 ```bash
-printf '#!/bin/sh\nexec dejavu commit-msg "$1"\n' > .git/hooks/commit-msg && chmod +x .git/hooks/commit-msg
+dejavu commit-msg .git/COMMIT_EDITMSG
 ```
