@@ -6,6 +6,12 @@ Não é um revisor e não substitui o `revisador`. É a rede mecânica que pega,
 a classe de erro que já custou caro antes. Se uma regra não vira detector executável, ela não
 entra aqui - continua no `repo-rules.local.md` como conhecimento para a review.
 
+> `revisador`, `pr-review` e `repo-rules.local.md` são artefatos do setup local de quem escreveu
+> isto (skills e notas em `~/.claude/`), não fazem parte deste repositório e não são necessários
+> para usar o `dejavu`. Aparecem no campo `source` das regras só para dizer de onde cada regra
+> veio. As regras embutidas aqui são as genéricas; regra específica de um repositório é para ser
+> declarada no override local, descrito em "Como as regras funcionam".
+
 ## Instalação
 
 ```bash

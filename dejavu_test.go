@@ -148,12 +148,15 @@ func TestPathScopingKeepsSpecRulesOutOfProductionCode(t *testing.T) {
 }
 
 func TestRepoScopingIsolatesRepoSpecificRules(t *testing.T) {
-	r := ruleByID(t, "web-refetch-on-mount-always")
+	r := &Rule{ID: "scoped", Repos: []string{"web"}}
 	if r.appliesToRepo("api") {
-		t.Error("regra com escopo nao pode valer para api")
+		t.Error("regra com escopo de repo nao pode valer para outro repo")
 	}
 	if !r.appliesToRepo("web") {
-		t.Error("regra com escopo deve valer para o repo declarado")
+		t.Error("regra com escopo de repo deve valer para o repo declarado")
+	}
+	if !(&Rule{ID: "global"}).appliesToRepo("api") {
+		t.Error("regra sem escopo deve valer para qualquer repo")
 	}
 }
 
@@ -170,18 +173,9 @@ func TestWeakAssertionRuleDistinguishesTimesVariant(t *testing.T) {
 	}
 }
 
-func TestBlindDataCastOnlyFiresOnResponseReceiver(t *testing.T) {
-	r := ruleByID(t, "web-blind-data-cast")
-	if !r.re.MatchString("const u = response.data as UserProfile;") {
-		t.Error("body de resposta HTTP deve disparar")
-	}
-	if r.re.MatchString("const c = route.snapshot.data as ProfileListConfig;") {
-		t.Error("route.snapshot.data nao e body HTTP e nao pode disparar")
-	}
-}
-
 func TestSelectRulesKeepsCandidatesOutOfTheHook(t *testing.T) {
-	rules := embeddedRuleSet(t)
+	rules := append(embeddedRuleSet(t),
+		&Rule{ID: "em-calibracao", Status: StatusCandidate, Mode: ModeFlagIfMatch})
 	hook := selectRules(rules, false)
 	for _, r := range hook {
 		if r.Status == StatusCandidate {
@@ -243,7 +237,10 @@ func TestEveryClassInTheRealLedgerResolves(t *testing.T) {
 	if len(counts) == 0 {
 		t.Skip("ledger vazio")
 	}
-	v := embeddedVocabulary(t)
+	v, err := loadVocabulary()
+	if err != nil {
+		t.Fatalf("erro carregando vocabulario: %v", err)
+	}
 	for slug := range counts {
 		if v.resolve(slug) == "" {
 			t.Errorf("classe do ledger fora do vocabulario: %s", slug)
