@@ -44,8 +44,16 @@ flags:
 saida: 0 limpo, 2 achados, 1 erro
 `
 
+func homeDir() string {
+	if home := os.Getenv("HOME"); home != "" {
+		return home
+	}
+	home, _ := os.UserHomeDir()
+	return home
+}
+
 func stateDir() string {
-	return filepath.Join(os.Getenv("HOME"), ".claude", "dejavu")
+	return filepath.Join(homeDir(), ".claude", "dejavu")
 }
 
 func hasFlag(args []string, name string) bool {
