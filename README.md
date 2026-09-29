@@ -2,6 +2,8 @@
 
 Salvaguarda barata: checagens determinísticas derivadas de erros que já foram cometidos.
 
+English version: [README.en.md](README.en.md)
+
 ## O problema
 
 Todo time acumula uma lista de erros que já custaram caro. O subject do commit que reprova no
