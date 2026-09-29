@@ -110,7 +110,7 @@ type ledgerEntry struct {
 }
 
 func ledgerDir() string {
-	return filepath.Join(os.Getenv("HOME"), ".claude", "review-metrics", "ledger")
+	return filepath.Join(homeDir(), ".claude", "review-metrics", "ledger")
 }
 
 func scanLedgerClasses() (map[string]int, error) {
